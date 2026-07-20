@@ -568,7 +568,6 @@ const renderHTML = (message = '', comments = []) => {
 `;
 };
 
-// Ruta principal para cargar la página
 app.get('/', async (req, res) => {
     try {
         const result = await pool.query('SELECT content FROM comments');
@@ -578,20 +577,19 @@ app.get('/', async (req, res) => {
     }
 });
 
-// Ruta vulnerable a Inyección SQL
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     
     const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
     
     try {
-        console.log('Query ejecutada en la BD:', query); // Mostrar esto en consola suma puntos
+        console.log('Query ejecutada en la BD:', query);
         const result = await pool.query(query);
         const commentsResult = await pool.query('SELECT content FROM comments');
         
         if (result.rows.length > 0) {
             const role = result.rows[0].role;
-            res.send(renderHTML(`¡Éxito! Bienvenido al sistema. Usuario: ${result.rows[0].username} | Privilegios: ${role}`, commentsResult.rows));
+            res.send(renderHTML(`Bienvenido al sistema. Usuario: ${result.rows[0].username} | Privilegios: ${role}`, commentsResult.rows));
         } else {
             res.send(renderHTML('Acceso denegado: Credenciales incorrectas', commentsResult.rows));
         }
@@ -600,7 +598,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Ruta vulnerable a XSS (Rol 3)
+// Ruta vulnerable a XSS 
 app.post('/comment', async (req, res) => {
     const { content } = req.body;
     try {
